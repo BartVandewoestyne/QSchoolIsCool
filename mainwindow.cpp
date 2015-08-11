@@ -8,24 +8,37 @@
 #include <QMessageBox>
 #include <QLineEdit>
 #include <QPushButton>
+#include <QTime>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
+#include <QSound>
 
 MainWindow::MainWindow()
 {
+    if (QSound::isAvailable ())
+        qDebug() << "Sound Facility is available.";
+    else
+        qDebug() << "Sound Facility is not available.";
+
+    QTime time = QTime::currentTime();
+    qsrand((uint)time.msec());
+
+    operationChar = createRandomOperationChar();
+
     QFont fontMath("Arial", 60, QFont::Bold);
     QFont fontCheckButton("Arial", 30, QFont::Bold);
 
-    leftTermLabel = new QLabel("3");
+    leftTermLabel = new QLabel(QString::number(qrand() % MAX_OPERAND_VALUE));
     leftTermLabel->setFont(fontMath);
-    operationLabel = new QLabel("+");
+    operationLabel = new QLabel(operationChar);
     operationLabel->setFont(fontMath);
-    rightTermLabel = new QLabel("5");
+    rightTermLabel = new QLabel(QString::number(qrand() % MAX_OPERAND_VALUE));
     rightTermLabel->setFont(fontMath);
     equalsLabel = new QLabel("=");
     equalsLabel->setFont(fontMath);
     resultLineEdit = new QLineEdit;
     resultLineEdit->setFont(fontMath);
+    connect(resultLineEdit, SIGNAL(returnPressed()), this, SLOT(handleCheckButtonPressed()));
 
     checkButton = new QPushButton(tr("Check my result!"));
     checkButton->setFont(fontCheckButton);
@@ -101,25 +114,76 @@ void MainWindow::about()
 
 void MainWindow::handleCheckButtonPressed()
 {
+    QString operation = operationLabel->text();
+
     int op1 = (leftTermLabel->text()).toInt();
     int op2 = (rightTermLabel->text()).toInt();
     int userResult = (resultLineEdit->text()).toInt();
-    
-    if (op1 + op2 == userResult)
+   
+    int correctResult = 0;
+    switch (operation.at(0).toAscii()) {
+        case '+':
+            correctResult = op1 + op2;
+            break;
+        case '-':
+            correctResult = op1 - op2;
+            break;
+        case '*':
+            correctResult = op1 * op2;
+            break;
+        case '/':
+            correctResult = op1 / op2;
+            break;
+        default:
+            qDebug("ERROR: unknown operation!");
+    }
+
+    if (correctResult == userResult)
     {
         resultLabel->setText(tr("Correct!"));
+        QSound::play("audio/cheer-01.wav");
     }
     else
     {
-        resultLabel->setText(tr("Wrong! %1 + %2 = %3").arg(op1).arg(op2).arg(op1+op2));
+        resultLabel->setText(tr("Wrong! %1 %2 %3 = %4").arg(op1).arg(operationChar).arg(op2).arg(correctResult));        
+        QSound::play("audio/boo-01.wav");
     }
 
-    const int maxInt = 10;
-    op1 = qrand() % maxInt;
-    op2 = qrand() % maxInt;
+    op1 = qrand() % MAX_OPERAND_VALUE;
+    op2 = qrand() % MAX_OPERAND_VALUE;
     leftTermLabel->setText(QString::number(op1));
     rightTermLabel->setText(QString::number(op2));
+    operationChar = createRandomOperationChar();
+    operationLabel->setText(operationChar);
 
     resultLineEdit->clear();
+}
+
+QChar MainWindow::createRandomOperationChar()
+{
+    QChar randomOp;
+
+    int randomInt = qrand() % 4;
+    qDebug() << "randomInt = " << randomInt;
+
+    switch (randomInt)
+    {
+        case 0:
+            randomOp = '+';
+            break;
+        case 1:
+            randomOp = '-';
+            break;
+        case 2:
+            randomOp = '*';
+            break;
+        case 3:
+            randomOp = '/';
+            break;
+        default:
+            qDebug("ERROR: illegal random number to generate random operation.");
+    }
+
+    return randomOp;
 }
 

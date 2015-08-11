@@ -22,8 +22,14 @@ public:
 private slots:
     void about();
     void handleCheckButtonPressed();
+    QChar createRandomOperationChar();
 
 private:
+
+    static const int MAX_OPERAND_VALUE = 10;
+
+    QChar operationChar;
+
     QLabel* leftTermLabel;
     QLabel* operationLabel;
     QLabel* rightTermLabel;
