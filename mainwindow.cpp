@@ -128,10 +128,10 @@ void MainWindow::handleCheckButtonPressed()
         case '-':
             correctResult = op1 - op2;
             break;
-        case '*':
+        case '×':
             correctResult = op1 * op2;
             break;
-        case '/':
+        case ':':
             correctResult = op1 / op2;
             break;
         default:
@@ -175,10 +175,10 @@ QChar MainWindow::createRandomOperationChar()
             randomOp = '-';
             break;
         case 2:
-            randomOp = '*';
+            randomOp = '×';
             break;
         case 3:
-            randomOp = '/';
+            randomOp = ':';
             break;
         default:
             qDebug("ERROR: illegal random number to generate random operation.");
